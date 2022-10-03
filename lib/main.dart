@@ -10,7 +10,7 @@ final SplitConfiguration configurationOptions = SplitConfiguration(
     trafficType: 'user',
     enableDebug: true,
     persistentAttributesEnabled: true,
-    streamingEnabled: false,
+    streamingEnabled: true,
     featuresRefreshRate: 5
 );
 
