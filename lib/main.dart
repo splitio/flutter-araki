@@ -14,7 +14,7 @@ final SplitConfiguration configurationOptions = SplitConfiguration(
     featuresRefreshRate: 5
 );
 
-final Splitio _split = Splitio('2d20dfejlhn8ihi1tla2e27bs4ishqa54nt5', 'key', configuration: configurationOptions);
+final Splitio _split = Splitio('your client-side api key', 'key', configuration: configurationOptions);
 
 void main() {
   runApp(const MyApp());
