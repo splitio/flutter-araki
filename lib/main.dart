@@ -4,7 +4,17 @@ import 'package:splitio/splitio.dart';
 import 'dart:async';
 import 'dart:convert';
 
-final Splitio _split = Splitio('<your split client-side api token>', 'key');
+StreamController<dynamic> streamController = StreamController<dynamic>();
+
+final SplitConfiguration configurationOptions = SplitConfiguration(
+    trafficType: 'user',
+    enableDebug: true,
+    persistentAttributesEnabled: true,
+    streamingEnabled: false,
+    featuresRefreshRate: 5
+);
+
+final Splitio _split = Splitio('2d20dfejlhn8ihi1tla2e27bs4ishqa54nt5', 'key', configuration: configurationOptions);
 
 void main() {
   runApp(const MyApp());
@@ -21,15 +31,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Split Demo Home Page'),
+      home: MyHomePage('Split Demo Home Page', streamController.stream),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  MyHomePage(this.title, this.stream);
 
   final String title;
+  final Stream<dynamic> stream;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -41,7 +52,18 @@ Future<SplitResult> getSplitTreatment() {
     _split.client(onReady: (client) async {
       print("client is ready, calling getTreatment");
       resultCompleter
-          .complete(client.getTreatmentWithConfig('multivariant_demo'));
+        .complete(client.getTreatmentWithConfig('multivariant_demo'));
+    }, onReadyFromCache: (client) {
+      print("onReadyFromCache!");
+    }, onUpdated: (client) async {
+      print("onUpdated!");
+      SplitResult result = await client.getTreatmentWithConfig('multivariant_demo');
+      var json = jsonDecode(result.config!);
+      print(json);
+      print("adding JSON to stream controller");
+      streamController.add(json);
+    }, onTimeout: (client) {
+      print("onTimeout!");
     });
 
     return resultCompleter.future;
@@ -51,10 +73,41 @@ Future<SplitResult> _splitResult = getSplitTreatment();
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  var _image;
+  var _text;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.stream.listen((json) {
+      print("LISTEN");
+      mySetState(json);
+    });
+  }
+
+  void mySetState(dynamic json) {
+    print ("mySetState");
+    setState(() {
+      _image = json['image'];
+      _text = json['text'];
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
       _counter++;
+    });
+  }
+
+  void _setImage(image) {
+    setState(() {
+      _image = image;
+    });
+  }
+
+  void _setText(text) {
+    setState(() {
+      _text = text;
     });
   }
 
@@ -67,8 +120,13 @@ class _MyHomePageState extends State<MyHomePage> {
         List<Widget> children;
         
         if(snapshot.hasData) {
-          var json = jsonDecode(snapshot.data!.config!);
-          print("data: " + json['image']);
+          if(_image == null) {
+            var json = jsonDecode(snapshot.data!.config!);
+            print("onReady data: " + json['image']);
+            _image = json['image'];
+            _text = json['text'];
+          }
+          print("showing: " + _image);
 
           children = <Widget> [
             Flexible(
@@ -80,9 +138,9 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Image.network(json['image']),
+                  Image.network(_image),
                   Text(
-                    json['text'],
+                    _text,
                     style: Theme.of(context).textTheme.headline4,
                   ),
                 ],
