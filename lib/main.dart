@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:splitio/split_client.dart';
 import 'package:splitio/splitio.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'splitApiToken.dart';
 
 StreamController<dynamic> streamController = StreamController<dynamic>();
 
@@ -14,7 +14,7 @@ final SplitConfiguration configurationOptions = SplitConfiguration(
     featuresRefreshRate: 5
 );
 
-final Splitio _split = Splitio('your client-side api key', 'key', configuration: configurationOptions);
+final Splitio _split = Splitio(SplitApiConfig.apiToken, 'key', configuration: configurationOptions);
 
 void main() {
   runApp(const MyApp());
