@@ -14,7 +14,8 @@ final SplitConfiguration configurationOptions = SplitConfiguration(
     featuresRefreshRate: 5
 );
 
-final Splitio _split = Splitio(SplitApiConfig.apiToken, 'key', configuration: configurationOptions);
+final Splitio _split = Splitio(splitApiToken, 'key', configuration: configurationOptions);
+//final Splitio _split = Splitio(SplitApiConfig.apiToken, 'key', configuration: configurationOptions);
 
 void main() {
   runApp(const MyApp());
@@ -141,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Image.network(_image),
                   Text(
                     _text,
-                    style: Theme.of(context).textTheme.headline4,
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ],
               ),)
