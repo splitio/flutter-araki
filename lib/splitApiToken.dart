@@ -1,3 +1,1 @@
-class SplitApiConfig {
-  static const String apiToken = '<your split client-side api token>';
-}
+const String splitApiToken = '<your split client-side api token>';
